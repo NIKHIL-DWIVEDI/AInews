@@ -9,6 +9,7 @@ class Config:
         load_dotenv(dotenv_path=env_path)
         self.news_api_key = os.getenv("NEWS_API_KEY")
         self.news_base_url = "https://newsapi.org/v2/top-headlines"
+        self.news_everything_url = "https://newsapi.org/v2/everything"
         self.groq_api_key = os.getenv("GROQ_API_KEY")
         self.llm_provider = "groq"
         self.model = "llama-3.3-70b-versatile"

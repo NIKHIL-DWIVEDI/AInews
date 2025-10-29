@@ -6,12 +6,16 @@ from app.config import Config
 from app.models import Article
 
 class NewsFetcher:
+    DEFAULT_QUERY = "top headlines"
+    
     def __init__(self):
-        self.api_key = Config().news_api_key
-        self.base_url = Config().news_base_url
+        config = Config()
+        self.api_key = config.news_api_key
+        self.base_url = config.news_base_url
+        self.everything_url = config.news_everything_url
 
     def fetch_news(self,
-                   query: Optional[str]="top headlines",
+                   query: Optional[str]=DEFAULT_QUERY,
                    country="us",
                    category="sports",
                    page_size=5,
@@ -19,9 +23,9 @@ class NewsFetcher:
 
         # NewsAPI /top-headlines endpoint doesn't support 'q' parameter with country/category
         # If query is provided and not default, use /everything endpoint instead
-        if query and query != "top headlines":
+        if query and query != self.DEFAULT_QUERY:
             # Use /everything endpoint for keyword search
-            everything_url = "https://newsapi.org/v2/everything"
+            url = self.everything_url
             params = {
                 "apiKey": self.api_key,
                 "q": query,
@@ -31,6 +35,7 @@ class NewsFetcher:
             }
         else:
             # Use /top-headlines endpoint for country/category filtering
+            url = self.base_url
             params = {
                 "apiKey": self.api_key,
                 "country": country,
@@ -38,10 +43,9 @@ class NewsFetcher:
                 "pageSize": page_size,
                 "page": page
             }
-            everything_url = self.base_url
             
         try:
-            response = requests.get(everything_url, params=params)
+            response = requests.get(url, params=params)
             data = response.json()
             if response.status_code == 200:
                 articles = data.get("articles", [])
@@ -74,7 +78,6 @@ class NewsFetcher:
         return articles
     
     def search_everything(self,query,page_size=20,sort_by='relevancy'):
-        everything_url = "https://newsapi.org/v2/everything"
         params = {
             "apiKey": self.api_key,
             "q": query,
@@ -82,7 +85,7 @@ class NewsFetcher:
             "sortBy": sort_by
         }
         try:
-            response = requests.get(everything_url, params=params)
+            response = requests.get(self.everything_url, params=params)
             data = response.json()
             if response.status_code == 200:
                 articles = data.get("articles", [])
