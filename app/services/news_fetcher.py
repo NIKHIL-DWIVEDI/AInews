@@ -17,17 +17,31 @@ class NewsFetcher:
                    page_size=5,
                    page=1) -> list[Article]:
 
-        params = {
-            "apiKey": self.api_key,
-            "country": country,
-            "category": category,
-            "pageSize": page_size,
-            "page": page
-        }
-        if query:
-            params["q"] = query
+        # NewsAPI /top-headlines endpoint doesn't support 'q' parameter with country/category
+        # If query is provided and not default, use /everything endpoint instead
+        if query and query != "top headlines":
+            # Use /everything endpoint for keyword search
+            everything_url = "https://newsapi.org/v2/everything"
+            params = {
+                "apiKey": self.api_key,
+                "q": query,
+                "pageSize": page_size,
+                "page": page,
+                "sortBy": "publishedAt"
+            }
+        else:
+            # Use /top-headlines endpoint for country/category filtering
+            params = {
+                "apiKey": self.api_key,
+                "country": country,
+                "category": category,
+                "pageSize": page_size,
+                "page": page
+            }
+            everything_url = self.base_url
+            
         try:
-            response = requests.get(self.base_url, params=params)
+            response = requests.get(everything_url, params=params)
             data = response.json()
             if response.status_code == 200:
                 articles = data.get("articles", [])
@@ -60,6 +74,7 @@ class NewsFetcher:
         return articles
     
     def search_everything(self,query,page_size=20,sort_by='relevancy'):
+        everything_url = "https://newsapi.org/v2/everything"
         params = {
             "apiKey": self.api_key,
             "q": query,
@@ -67,7 +82,7 @@ class NewsFetcher:
             "sortBy": sort_by
         }
         try:
-            response = requests.get(self.base_url, params=params)
+            response = requests.get(everything_url, params=params)
             data = response.json()
             if response.status_code == 200:
                 articles = data.get("articles", [])
