@@ -31,7 +31,7 @@ class NewsFetcher:
                 "q": query,
                 "pageSize": page_size,
                 "page": page,
-                "sortBy": "publishedAt"
+                "sortBy": "relevancy"
             }
         else:
             # Use /top-headlines endpoint for country/category filtering
