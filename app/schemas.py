@@ -43,9 +43,8 @@ class SearchResponse(BaseModel):
 class SourceInfo(BaseModel):
     """Source information"""
     title: str
-    source: str
     url: str
-    relevance: float
+    source_name: str
 
 class QuestionResponse(BaseModel):
     """Response for question answering"""

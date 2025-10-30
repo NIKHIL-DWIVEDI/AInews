@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.schemas import ArticleResponse, FetchNewsRequest, QuestionRequest, QuestionResponse, StatsResponse
+from app.schemas import ArticleResponse, FetchNewsRequest, QuestionRequest, QuestionResponse, SearchRequest, SearchResponse, SearchResult, StatsResponse
 from app.services.llm_service import LLMService
 from app.services.news_fetcher import NewsFetcher
 from app.services.rag_service import RAGService
@@ -39,15 +39,6 @@ def get_status():
 
 @app.post("/fetch-news",response_model=list[ArticleResponse])
 def fetch_news(request: FetchNewsRequest):
-    ## print the exact object received
-    print(f"Type of request received: {type(request)}")
-    print(f"request country: {request.country}")
-    print(f"request query: {request.query}")
-    print(f"request category: {request.category}")
-    print(f"request page_size: {request.page_size}")
-    print(f"request page: {request.page}")
-    print("Fetching news...")
-
     articles =news_fetcher.fetch_news(query=request.query, country=request.country, category=request.category, page_size=request.page_size,page=request.page)
     print("length of articles fetched:",len(articles))
     if not articles:
@@ -63,9 +54,31 @@ def fetch_news(request: FetchNewsRequest):
     response_articles = [ArticleResponse(**article.to_dict()) for article in articles]
     return response_articles
 
-@app.post("/search")
-def search_articles():
-    pass
+@app.post("/search",response_model=SearchResponse)
+def search_articles(request: SearchRequest):
+    try:
+        results = rag_service.search_articles(query=request.query,top_k=request.top_k)
+
+        formatted_results = [
+            SearchResult(
+                id=r['id'],
+                title=r['title'],
+                source_name=r['source_name'],
+                url=r['url'],
+                similarity_score=r['similarity_score'],
+                content_preview=r['content'][:200] + "..."
+            )
+            for r in results
+        ]
+        
+        return SearchResponse(
+            query=request.query,
+            results=formatted_results,
+            total_results=len(formatted_results)
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/ask",response_model=QuestionResponse)
 def ask_question(request: QuestionRequest):
@@ -79,9 +92,7 @@ def ask_question(request: QuestionRequest):
 @app.get("/articles",response_model=list[ArticleResponse])
 def get_all_articles(limit: int =10):
     try:
-        # read all the articles from storage
         articles = storage.read_articles()
-        ## limti the articles
         articles = articles[:limit]
         response = [ArticleResponse(**article.to_dict()) for article in articles]
         return response
@@ -90,6 +101,12 @@ def get_all_articles(limit: int =10):
     
 @app.delete("/clear")
 def clear_all_data():
-    pass
+    try:
+        storage.clear_storage()
+        rag_service.clear_storage()
+        print("Cleared all data from storage and vector DB.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 

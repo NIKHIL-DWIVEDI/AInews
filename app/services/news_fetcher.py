@@ -21,10 +21,7 @@ class NewsFetcher:
                    page_size=5,
                    page=1) -> list[Article]:
 
-        # NewsAPI /top-headlines endpoint doesn't support 'q' parameter with country/category
-        # If query is provided and not default, use /everything endpoint instead
         if query and query != self.DEFAULT_QUERY:
-            # Use /everything endpoint for keyword search
             url = self.everything_url
             params = {
                 "apiKey": self.api_key,
@@ -34,7 +31,6 @@ class NewsFetcher:
                 "sortBy": "relevancy"
             }
         else:
-            # Use /top-headlines endpoint for country/category filtering
             url = self.base_url
             params = {
                 "apiKey": self.api_key,
