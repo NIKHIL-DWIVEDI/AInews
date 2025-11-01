@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'news-assistant'
+    static_configs:
+      - targets: ['news-assistant:8001']
+        labels:
+          app: 'news-assistant'
+          environment: 'development'

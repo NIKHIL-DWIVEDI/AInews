@@ -1,10 +1,11 @@
 
+import time
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from app import config
 from app.services import rag_service
 from langchain_core.output_parsers import StrOutputParser
-
+from app.metrics import llm_api_latency, llm_queries
 
 class LLMService:
     def __init__(self):
@@ -45,13 +46,16 @@ class LLMService:
             context_parts.append(f"Article {i+1} Title: {result['title']}\nContent: {result['content']}\nSource: {result['source_name']}\nURL: {result['url']}\n")
         context = "\n".join(context_parts)
 
+        start_time = time.time()
         chain = self.prompt_template | self.llm | StrOutputParser()
 
         response = chain.invoke({
             "context": context,
             "question": question
         })
-
+        end_time = time.time()
+        duration = end_time - start_time
+        llm_api_latency.labels(model='groq').observe(duration)
         sources = []
         for result in search_results[:3]:
             sources.append({

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI News Research Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>AI News Research Assistant</h1>
+            <p class="subtitle">RAG-powered news search and Q&A system</p>
+        </header>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('fetch')">📰 Fetch News</button>
+            <button class="tab-button" onclick="showTab('search')">🔍 Search</button>
+            <button class="tab-button" onclick="showTab('ask')">💬 Ask Question</button>
+        </div>
+
+        <!-- Tab Content: Fetch News -->
+        <div id="fetchTab" class="tab-content active">
+            <div class="card">
+                <h2>Fetch Latest News</h2>
+                <form id="fetchForm">
+                    <div class="form-group">
+                        <label for="category">Category:</label>
+                        <select id="category" name="category">
+                            <option value="">All Categories</option>
+                            <option value="technology">Technology</option>
+                            <option value="business">Business</option>
+                            <option value="science">Science</option>
+                            <option value="health">Health</option>
+                            <option value="sports">Sports</option>
+                            <option value="entertainment">Entertainment</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="country">Country:</label>
+                        <select id="country" name="country">
+                            <option value="us">United States</option>
+                            <option value="gb">United Kingdom</option>
+                            <option value="in">India</option>
+                            <option value="ca">Canada</option>
+                            <option value="au">Australia</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pageSize">Number of Articles:</label>
+                        <input type="number" id="pageSize" name="pageSize" value="10" min="1" max="20">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Fetch Articles</button>
+                </form>
+                <div id="fetchResults" class="results"></div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Search -->
+        <div id="searchTab" class="tab-content">
+            <div class="card">
+                <h2>Semantic Search</h2>
+                <form id="searchForm">
+                    <div class="form-group">
+                        <label for="searchQuery">Search Query:</label>
+                        <input type="text" id="searchQuery" placeholder="e.g., artificial intelligence developments" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="topK">Number of Results:</label>
+                        <input type="number" id="topK" value="5" min="1" max="20">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+                <div id="searchResults" class="results"></div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Ask Question -->
+        <div id="askTab" class="tab-content">
+            <div class="card">
+                <h2>Ask a Question</h2>
+                <form id="askForm">
+                    <div class="form-group">
+                        <label for="question">Your Question:</label>
+                        <textarea id="question" rows="3" placeholder="e.g., What are the latest developments in AI?" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="sourcesCount">Number of Sources:</label>
+                        <input type="number" id="sourcesCount" value="5" min="1" max="10">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Get Answer</button>
+                </form>
+                <div id="askResults" class="results"></div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

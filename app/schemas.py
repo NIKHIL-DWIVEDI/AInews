@@ -54,5 +54,5 @@ class QuestionResponse(BaseModel):
 
 class StatsResponse(BaseModel):
     """Database statistics"""
-    total_articles_stored: int
+    total_articles_in_rag: int
     total_articles_in_vectordb: int
